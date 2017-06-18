@@ -15,10 +15,11 @@ BORDER_BALL_COLOR = 'black'
 
 #for snake
 DX = 10
-DY = 10
+DY = 0
 SNAKE_SPEED = 150
 SNAKE_SIZE = 4
 SNAKE_COLOR = 'blue'
+DIRECTION = 1
 
 COLORS = ['green', 'red', 'pink', 'blue']
 
@@ -66,17 +67,59 @@ class Snake(Object):
             el = [self.x, self.y]
             snakeList.append(el)
             self.x += 10
-        print(snakeList)
 
     def move(self):
         self.hide(snakeList[0][0], snakeList[0][1])
         snakeList.pop(0)
         self.x += DX
+        self.y += DY
         newHead = [self.x, self.y]
         snakeList.append(newHead)
         self.draw()
         
- def click(event)       
+def click1(event):
+    global DX
+    global DY
+    global DIRECTION
+    DIRECTION += 1
+    if DIRECTION == 1:
+        DX = 10
+        DY = 0
+    elif DIRECTION == 2:
+        DX = 0
+        DY = -10
+    elif DIRECTION == 3:
+        DX = -10
+        DY = 0
+    elif DIRECTION == 4:
+        DX = 0
+        DY = 10
+    else:
+        DIRECTION = 1
+        DX = 10
+        DY = 0
+
+def click2(event):
+    global DX
+    global DY
+    global DIRECTION
+    DIRECTION -= 1
+    if DIRECTION == 1:
+        DX = 10
+        DY = 0
+    elif DIRECTION == 2:
+        DX = 0
+        DY = -10
+    elif DIRECTION == 3:
+        DX = -10
+        DY = 0
+    elif DIRECTION == 4:
+        DX = 0
+        DY = 10
+    else:
+        DIRECTION = 4
+        DX = 0
+        DY = 10
         
         
         
@@ -85,8 +128,8 @@ class Snake(Object):
 
 # функция для запуска игры
 def main():
-    if 'snakeList' in globals():
-        sn.move()
+    sn.move()
+    print(DX, DY)
     root.after(SNAKE_SPEED, main)        
 
 
@@ -94,9 +137,8 @@ root = tkinter.Tk()
 root.title("Snake")
 canvas = tkinter.Canvas(root, width = WIDTH, height = HEIGHT, bg = BG_COLOR)
 canvas.pack()
-#canvas.bind('<Button-1>', mouse_click)
-#canvas.bind('<Button-2>', mouse_click, '+')
-#canvas.bind('<Button-3>', mouse_click, '+')
+canvas.bind('<Button-1>', click1)
+canvas.bind('<Button-3>', click2)
 #создаем горизонтальные границы
 '''horizontal1 = HorizontalLine(-5, 10, BALL_RADIUS, BORDER_BALL_COLOR)
 horizontal1.createBorder()

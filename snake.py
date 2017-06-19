@@ -5,13 +5,12 @@ import time
 #constants
 
 #for all
-WIDTH = 1000
-HEIGHT = 700
+WIDTH = 500
+HEIGHT = 300
 BG_COLOR = 'white'
 BALL_RADIUS = 5
-
-#for border
-BORDER_BALL_COLOR = 'black'
+COLORS = ['green', 'red', 'pink', 'blue']
+MEAT_LIST = []
 
 #for snake
 DX = 10
@@ -20,8 +19,7 @@ SNAKE_SPEED = 150
 SNAKE_SIZE = 4
 SNAKE_COLOR = 'blue'
 DIRECTION = 1
-
-COLORS = ['green', 'red', 'pink', 'blue']
+SNAKE_LIST = []
 
 class Object():
     def __init__(self, x, y, r, color):
@@ -37,46 +35,48 @@ class Object():
         canvas.create_oval(x - BALL_RADIUS, y - BALL_RADIUS, x + BALL_RADIUS, y + BALL_RADIUS, fill = BG_COLOR, outline = BG_COLOR)
 
 
-class HorizontalLine(Object):
-    def createBorder(self):
-        lineLen = WIDTH / 2
-        for i in range(0, int(lineLen)):
-            self.x += 10
-            self.draw()
-
-
-class VerticalLine(Object):
-    def createBorder(self):
-        lineLen = HEIGHT / 2
-        for i in range(0, int(lineLen)):
-            self.y += 10
-            self.draw()
-
-
 class Snake(Object):
     def __init__(self, x, y, r, color):
         self.x = x
         self.y = y
         self.r = r
         self.color = color
-        global snakeList
-        snakeList = []
         for i in range(0, SNAKE_SIZE):
             # прорисовываем змейку со сдвигом вправо
             self.draw()
             el = [self.x, self.y]
-            snakeList.append(el)
+            SNAKE_LIST.append(el)
             self.x += 10
 
     def move(self):
-        self.hide(snakeList[0][0], snakeList[0][1])
-        snakeList.pop(0)
+        self.hide(SNAKE_LIST[0][0], SNAKE_LIST[0][1])
+        SNAKE_LIST.pop(0)
+        self.x += DX
+        self.y += DY
+        if self.x > WIDTH:
+            self.x = 0
+        elif self.x < 0:
+            self.x = WIDTH
+        elif self.y > HEIGHT:
+            self.y = 0
+        elif self.y < 0:
+            self.y = HEIGHT
+        newHead = [self.x, self.y]
+        SNAKE_LIST.append(newHead)
+        self.draw()
+        #условие поедания еды
+        if self.x == MEAT_LIST[0][0] and self.y == MEAT_LIST[0][1]:
+            self.eat()
+            MEAT_LIST.pop(0)
+
+    def eat(self):
         self.x += DX
         self.y += DY
         newHead = [self.x, self.y]
-        snakeList.append(newHead)
+        SNAKE_LIST.append(newHead)
         self.draw()
         
+#функция для поворота змейки налево относительно движения        
 def click1(event):
     global DX
     global DY
@@ -99,6 +99,7 @@ def click1(event):
         DX = 10
         DY = 0
 
+#функция для поворота змейки направо относительно движения        
 def click2(event):
     global DX
     global DY
@@ -119,19 +120,30 @@ def click2(event):
     else:
         DIRECTION = 4
         DX = 0
-        DY = 10
-        
-        
-        
-    
+        DY = 10        
 
+#создаем еду для змейки
+def meat():
+    global bit
+    x = random.randint(0, WIDTH)
+    y = random.randint(0, HEIGHT)
+    if (x % 10) != 0 or (y % 10) != 0:
+        meat()
+    else:
+        MEAT_LIST.append([x, y])
+        color = random.choice(COLORS)
+        bit = Object(x, y, BALL_RADIUS, color)
+        bit.draw()
+    
+    
 
 # функция для запуска игры
 def main():
+    if len(MEAT_LIST) == 0:
+        meat()
     sn.move()
-    print(DX, DY)
+    print(MEAT_LIST)
     root.after(SNAKE_SPEED, main)        
-
 
 root = tkinter.Tk()
 root.title("Snake")
@@ -139,19 +151,9 @@ canvas = tkinter.Canvas(root, width = WIDTH, height = HEIGHT, bg = BG_COLOR)
 canvas.pack()
 canvas.bind('<Button-1>', click1)
 canvas.bind('<Button-3>', click2)
-#создаем горизонтальные границы
-'''horizontal1 = HorizontalLine(-5, 10, BALL_RADIUS, BORDER_BALL_COLOR)
-horizontal1.createBorder()
-horizontal2 = HorizontalLine(-5, 690, BALL_RADIUS, BORDER_BALL_COLOR)
-horizontal2.createBorder()
 
-#создаем вертикальные границы
-vertical1 = VerticalLine(10, -5, BALL_RADIUS, BORDER_BALL_COLOR)
-vertical1.createBorder()
-vertical2 = VerticalLine(990, -5, BALL_RADIUS, BORDER_BALL_COLOR)
-vertical2.createBorder()'''
 # отображаем стартовое положение нашей змейки
-sn = Snake(500, 350, BALL_RADIUS, SNAKE_COLOR)
+sn = Snake(250, 150, BALL_RADIUS, SNAKE_COLOR)
 main()  
 
 root.mainloop()
